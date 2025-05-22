@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>时光记忆 | 我们的浪漫相册</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(45deg, #ff9a9e, #fad0c4);
+            min-height: 100vh;
+            font-family: 'Dancing Script', cursive;
+            overflow-x: hidden;
+        }
+
+        /* 飘落花瓣 */
+        .petal {
+            position: absolute;
+            background-color: #ffcdd2;
+            border-radius: 150% 0 150% 0;
+            animation: fall linear infinite;
+            opacity: 0.7;
+        }
+
+        @keyframes fall {
+            0% {
+                transform: translateY(-10vh) rotate(0deg);
+            }
+            100% {
+                transform: translateY(110vh) rotate(360deg);
+            }
+        }
+
+        /* 相册容器 */
+        .album-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* 照片墙 */
+        .photo-wall {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            padding: 20px;
+        }
+
+        .photo-item {
+            position: relative;
+            border-radius: 15px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+            aspect-ratio: 1/1;
+        }
+
+        .photo-item:hover {
+            transform: scale(1.05) rotate(2deg);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+        }
+
+        .photo-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        /* 大图模态框 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 999;
+            backdrop-filter: blur(10px);
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 15px;
+            box-shadow: 0 0 50px rgba(255,255,255,0.3);
+        }
+
+        /* 标题样式 */
+        .header {
+            text-align: center;
+            color: #fff;
+            padding: 2rem 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .music-controls {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.7);
+            padding: 10px 15px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .music-btn {
+            background: #ff4081;
+            color: white;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 14px;
+        }
+        
+        .volume-control {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .volume-icon {
+            font-size: 16px;
+            color: #ff4081;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- 飘落花瓣 -->
+    <!-- <div id="petals"></div> -->
+
+    <!-- 页面标题 -->
+    <div class="header">
+        <h1>时光记忆 ❤️</h1>
+        <p>我们的浪漫时刻</p>
+    </div>
+
+    <!-- 相册主体 -->
+    <div class="album-container">
+        <div class="photo-wall" id="photoWall">
+            <!-- 照片将通过JS动态加载 -->
+        </div>
+    </div>
+
+    <!-- 大图模态框 -->
+    <div class="modal" id="imageModal">
+        <img class="modal-content" id="modalImage">
+    </div>
+
+    <div class="music-controls">
+        <button class="music-btn" id="playBtn">▶</button>
+        <div class="volume-control">
+            <span class="volume-icon">🔊</span>
+            <input type="range" id="volume" min="0" max="1" step="0.1" value="0.5">
+        </div>
+    </div>
+
+    <audio id="bgMusic" loop>
+        <source src="http://fogfore.github.io/html/music/chuichuifeng.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        // 照片数据（替换为实际照片URL）
+        const photos = [
+            'http://fogfore.github.io/html/pic/20250412202221.jpg',
+            'http://fogfore.github.io/html/pic/20250412202226.jpg',
+            'http://fogfore.github.io/html/pic/20250505223735.jpg',
+            'http://fogfore.github.io/html/pic/20250505223952.jpg',
+            'http://fogfore.github.io/html/pic/20250505224310.jpg',
+            'http://fogfore.github.io/html/pic/20250505224601.jpg',
+            'http://fogfore.github.io/html/pic/20250505224738.jpg',
+            'http://fogfore.github.io/html/pic/20250505224814.jpg'
+        ];
+
+        const bgMusic = document.getElementById('bgMusic');
+        const playBtn = document.getElementById('playBtn');
+        const volumeControl = document.getElementById('volume');
+        // 音乐控制
+        playBtn.addEventListener('click', function() {
+            if (bgMusic.paused) {
+                bgMusic.play();
+                playBtn.textContent = '❚❚';
+            } else {
+                bgMusic.pause();
+                playBtn.textContent = '▶';
+            }
+        });
+        // 音量控制
+        volumeControl.addEventListener('input', function() {
+            bgMusic.volume = this.value;
+        });
+
+        // 初始化相册
+        function initAlbum() {
+            const wall = document.getElementById('photoWall');
+            photos.forEach((url, index) => {
+                const item = document.createElement('div');
+                item.className = 'photo-item';
+                item.innerHTML = `
+                    <img src="${url}" alt="我们的回忆 ${index + 1}">
+                `;
+                item.addEventListener('click', () => showModal(url));
+                wall.appendChild(item);
+            });
+        }
+
+        // 显示大图
+        function showModal(url) {
+            const modal = document.getElementById('imageModal');
+            const img = document.getElementById('modalImage');
+            img.src = url;
+            modal.style.display = 'block';
+            
+            // 点击关闭
+            modal.onclick = () => {
+                modal.style.display = 'none';
+            }
+        }
+
+        // 创建花瓣
+        function createPetals() {
+            const body = document.querySelector('body');
+            const petalCount = 100;
+            
+            for (let i = 0; i < petalCount; i++) {
+                createPetal();
+            }
+            
+            function createPetal() {
+                const petal = document.createElement('div');
+                petal.classList.add('petal');
+                
+                // 随机大小 (5-15px)
+                const size = Math.random() * 10 + 5;
+                petal.style.width = `${size}px`;
+                petal.style.height = `${size}px`;
+                
+                // 随机起始位置
+                petal.style.left = `${Math.random() * window.innerWidth}px`;
+                petal.style.top = `${Math.random() * -100}px`;
+                
+                // 随机动画时长 (10-20秒)
+                const duration = Math.random() * 10 + 10;
+                petal.style.animationDuration = `${duration}s`;
+                
+                // 随机延迟 (0-5秒)
+                petal.style.animationDelay = `${Math.random() * 5}s`;
+                
+                // 随机透明度
+                petal.style.opacity = Math.random() * 0.5 + 0.3;
+                
+                body.appendChild(petal);
+                
+                // 花瓣落地后重新开始
+                petal.addEventListener('animationiteration', () => {
+                    petal.style.left = `${Math.random() * window.innerWidth}px`;
+                    petal.style.top = `${Math.random() * -100}px`;
+                });
+            }
+        }
+
+        // 初始化
+        window.addEventListener('load', () => {
+            initAlbum();
+            createPetals();
+        });
+        // document.addEventListener('DOMContentLoaded', () => {
+        //     createPetals();
+        // });
+    </script>
+</body>
+</html>
