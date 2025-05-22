@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>致我最爱的人</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+        }
+        
+        .container {
+            text-align: center;
+            z-index: 10;
+            padding: 20px;
+            background-color: rgba(255,255,255,0.2);
+            border-radius: 15px;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            max-width: 600px;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: #d23669;
+        }
+        
+        p {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        
+        .heart {
+            position: absolute;
+            pointer-events: none;
+            animation: fall linear forwards;
+        }
+        
+        @keyframes fall {
+            to {
+                transform: translateY(100vh);
+            }
+        }
+        
+        button {
+            background-color: #d23669;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(210, 54, 105, 0.4);
+        }
+        
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(210, 54, 105, 0.6);
+        }
+        
+        .photo-frame {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: 5px solid white;
+            margin: 0 auto 20px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            background-color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .photo-frame img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="photo-frame">
+            <!-- 这里可以替换成你的照片 -->
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#d23669" width="96px" height="96px">
+                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+            </svg>
+        </div>
+        <h1>致我最爱的人</h1>
+        <p>在茫茫人海中遇见你，是我生命中最美丽的意外。</p>
+        <p>你的笑容如阳光般温暖，照亮了我生命的每一个角落。</p>
+        <p>我想牵着你的手，走过春夏秋冬，看遍世间繁华。</p>
+        <p>你愿意和我一起，书写属于我们的故事吗？</p>
+        <button id="loveBtn">我愿意 ❤️</button>
+    </div>
+
+    <script>
+        // 创建飘落的心形
+        function createHearts() {
+            const colors = ['#ff6b6b', '#ff8787', '#fa5252', '#f06595', '#d23669'];
+            
+            setInterval(() => {
+                const heart = document.createElement('div');
+                heart.classList.add('heart');
+                
+                // 随机大小
+                const size = Math.random() * 20 + 10;
+                
+                // 随机位置
+                const startX = Math.random() * window.innerWidth;
+                
+                // 随机动画持续时间
+                const duration = Math.random() * 5 + 5;
+                
+                // 随机透明度
+                const opacity = Math.random() * 0.7 + 0.3;
+                
+                // 随机颜色
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                
+                // 设置心形样式
+                heart.innerHTML = '❤️';
+                heart.style.left = `${startX}px`;
+                heart.style.top = `-30px`;
+                heart.style.fontSize = `${size}px`;
+                heart.style.opacity = opacity;
+                heart.style.color = color;
+                heart.style.animationDuration = `${duration}s`;
+                
+                document.body.appendChild(heart);
+                
+                // 动画结束后移除元素
+                setTimeout(() => {
+                    heart.remove();
+                }, duration * 1000);
+            }, 300);
+        }
+        
+        // 点击按钮的效果
+        document.getElementById('loveBtn').addEventListener('click', function() {
+            this.textContent = '我爱你 ❤️❤️❤️';
+            this.style.backgroundColor = '#40c057';
+            
+            // 创建爆炸的心形效果
+            for(let i = 0; i < 50; i++) {
+                const heart = document.createElement('div');
+                heart.classList.add('heart');
+                heart.innerHTML = '❤️';
+                heart.style.left = `${this.getBoundingClientRect().left + this.offsetWidth/2}px`;
+                heart.style.top = `${this.getBoundingClientRect().top + this.offsetHeight/2}px`;
+                heart.style.fontSize = '20px';
+                heart.style.color = '#ff6b6b';
+                heart.style.animation = `explode ${Math.random() * 2 + 1}s forwards`;
+                
+                // 随机爆炸方向
+                const angle = Math.random() * Math.PI * 2;
+                const distance = Math.random() * 200 + 100;
+                const x = Math.cos(angle) * distance;
+                const y = Math.sin(angle) * distance;
+                
+                heart.style.setProperty('--x', `${x}px`);
+                heart.style.setProperty('--y', `${y}px`);
+                
+                document.body.appendChild(heart);
+                
+                setTimeout(() => {
+                    heart.remove();
+                }, 1000);
+            }
+            
+            // 添加爆炸动画
+            const style = document.createElement('style');
+            style.innerHTML = `
+                @keyframes explode {
+                    to {
+                        transform: translate(var(--x), var(--y));
+                        opacity: 0;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+        });
+        
+        // 页面加载后开始创建心形
+        window.addEventListener('load', createHearts);
+    </script>
+</body>
+</html>
