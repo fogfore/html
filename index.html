@@ -53,6 +53,49 @@
                 transform: translateY(100vh);
             }
         }
+
+        .heart-btn {
+            background-color: #d23669;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(210, 54, 105, 0.4);
+            margin: 10px;
+            outline: none;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .heart-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(210, 54, 105, 0.6);
+        }
+        
+        .heart-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .heart-btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            border-radius: 100%;
+            transform: scale(1, 1) translate(-50%, -50%);
+            transform-origin: 50% 50%;
+        }
+        
+        .heart-btn:focus:not(:active)::after {
+            animation: ripple 1s ease-out;
+        }
         
         button {
             background-color: #d23669;
@@ -90,6 +133,49 @@
             height: 100%;
             object-fit: cover;
         }
+
+        .music-player {
+            margin-top: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(255,255,255,0.3);
+            padding: 15px;
+            border-radius: 50px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .music-control {
+            background: none;
+            border: none;
+            color: #d23669;
+            font-size: 24px;
+            cursor: pointer;
+            margin: 0 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 0px 0px rgba(0, 0, 0, 0.5);
+        }
+        
+        .music-control:hover {
+            transform: scale(1.2);
+            box-shadow: 0 0px 0px rgba(0, 0, 0, 0.5);
+        }
+
+        .progress-container {
+            flex-grow: 1;
+            height: 6px;
+            background-color: rgba(255,255,255,0.5);
+            border-radius: 3px;
+            margin: 0 15px;
+            cursor: pointer;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: #d23669;
+            border-radius: 3px;
+            width: 0%;
+        }
     </style>
 </head>
 <body>
@@ -101,14 +187,40 @@
             </svg>
         </div>
         <h1>致我最爱的人</h1>
-        <p>在茫茫人海中遇见你，是我生命中最美丽的意外。</p>
-        <p>你的笑容如阳光般温暖，照亮了我生命的每一个角落。</p>
-        <p>我想牵着你的手，走过春夏秋冬，看遍世间繁华。</p>
-        <p>你愿意和我一起，书写属于我们的故事吗？</p>
-        <button id="loveBtn">我愿意 ❤️</button>
+        <p id="mm">敏敏，在茫茫人海中遇见你，是我生命中最美丽的意外。
+        你的笑容如阳光般温暖，照亮了我生命的每一个角落。
+        我想牵着你的手，走过春夏秋冬，看遍世间繁华。
+        你愿意和我一起，书写属于我们的故事吗？</p>
+        <div class="btn-group">
+            <button class="heart-btn" id="yesBtn">我愿意 ❤️</button>
+            <button class="heart-btn" id="noBtn">不愿意</button>
+        </div>
+
+        <div class="music-player" id="musicPlayer">
+            <button class="music-control" id="prevBtn">⏮</button>
+            <button class="music-control" id="playBtn">▶️</button>
+            <button class="music-control" id="nextBtn">⏭</button>
+            <div class="progress-container" id="progressContainer">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+        </div>
     </div>
 
+    <audio id="bgMusic" loop>
+        <source src="http://fogfore.github.io/html/music/chuichuifeng.mp3" type="audio/mpeg">
+    </audio>
+
     <script>
+        const mm = document.getElementById('mm');
+        const yesBtn = document.getElementById('yesBtn');
+        const noBtn = document.getElementById('noBtn');
+        const bgMusic = document.getElementById('bgMusic');
+        const playBtn = document.getElementById('playBtn');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const progressContainer = document.getElementById('progressContainer');
+        const progressBar = document.getElementById('progressBar');
+
         // 创建飘落的心形
         function createHearts() {
             const colors = ['#ff6b6b', '#ff8787', '#fa5252', '#f06595', '#d23669'];
@@ -149,12 +261,92 @@
                 }, duration * 1000);
             }, 300);
         }
-        
+        let isPlaying = false;
+        let count = 0
+        let cai = 0
+
         // 点击按钮的效果
-        document.getElementById('loveBtn').addEventListener('click', function() {
-            this.textContent = '我爱你 ❤️❤️❤️';
-            this.style.backgroundColor = '#40c057';
-            
+        yesBtn.addEventListener('click', function() {
+            if (count >= 0 && count <= 1) {
+                mm.textContent = '爱你，爱你，我爱你❤️❤️❤️'
+                yesBtn.textContent = '我爱你 ❤️❤️❤️'
+                noBtn.textContent = '有点爱'
+                count = 14
+            }
+            else if (count >= 2 && count <= 3) {
+                mm.textContent = '抱抱，抱抱，爱你，爱你❤️❤️❤️'
+                yesBtn.textContent = '我爱你 ❤️❤️❤️'
+                noBtn.textContent = '有点爱'
+                count = 14
+            }
+            else if (count >= 4 && count <= 6) {
+                mm.textContent = '亲亲，抱抱，摸摸，爱你，爱你❤️❤️❤️'
+                yesBtn.textContent = '我爱你 ❤️❤️❤️'
+                noBtn.textContent = '有点爱'
+                count = 14
+            }
+            else if (count >= 7 && count <= 9) {
+                mm.textContent = '爱妃迷途知返，朕心甚慰，爱你，爱你❤️❤️❤️'
+                yesBtn.textContent = '我爱你 ❤️❤️❤️'
+                noBtn.textContent = '有点爱'
+                count = 14
+            }
+            else if (count >= 10 && count <= 11) {
+                mm.textContent = '太过分了，不过念在你悬崖勒马，你爱我么❤️❤️❤️'
+                yesBtn.textContent = '我爱你 ❤️❤️❤️'
+                noBtn.textContent = '有点爱'
+                count = 14
+            }
+            else if (count == 12) {
+                mm.textContent = '想看彩蛋？那你说你爱我么？'
+                yesBtn.textContent = '我爱你 ❤️❤️❤️'
+                noBtn.textContent = '有点爱'
+                count = 14
+            }
+            else if (count == 13) {
+                mm.textContent = '点累了吧？还是想回头看下彩蛋？那你说你爱我么？'
+                yesBtn.textContent = '我爱你 ❤️❤️❤️'
+                noBtn.textContent = '有点爱'
+                count = 14
+            }
+            else if (count == 14) {
+                mm.textContent = '超爱，超爱你❤️❤️❤️，那你有多爱我呢，是这么大🚲，还是这么大🚗，还是这么大✈️'
+                yesBtn.textContent = '这么大✈️'
+                noBtn.textContent = '这么大🚲🚗'
+                count = 15
+            }
+            else if (count == 15) {
+                mm.textContent = '超级无敌爆炸爱你❤️❤️❤️，给宝宝准备了彩蛋哦'
+                yesBtn.textContent = '超爱你❤️❤️❤️'
+                noBtn.textContent = '看彩蛋'
+                count = 16
+            }
+            else if (count == 16) {
+                mm.textContent = '超级无敌爆炸爱你，爱你生生世世❤️❤️❤️'
+                yesBtn.textContent = '超爱你❤️❤️❤️'
+                noBtn.textContent = '超爱你❤️❤️❤️'
+                count = 17
+            }
+            else if (count == 17) {
+                mm.textContent = '超级无敌螺旋爆炸爱你，爱你生生世世❤️❤️❤️'
+                yesBtn.textContent = '超爱你❤️❤️❤️'
+                noBtn.textContent = '超爱你❤️❤️❤️'
+                cai++
+                count = cai > 10 ? 20 : 17
+            }
+            else if (count == 18) {
+                mm.textContent = '好笑吧，那继续喽。乌龟心想蜗牛肯定是指望不上了，它就给蜈蚣打电话帮忙买药，可又过了一小时，蜈蚣还是没回来，它就给蜈蚣打电话问，"老弟，你走到哪了"，你猜蜈蚣怎么说的，蜈蚣说，"老铁稳住，我靴子马上穿完了",讲完啦，开心么，偷偷给你说，这里面有终极彩蛋哦'
+                yesBtn.textContent = '超爱你❤️❤️❤️'
+                noBtn.textContent = '超爱你❤️❤️❤️'
+                cai++
+                count = cai > 10 ? 20 : 17
+            }
+            else if (count == 20) {
+                mm.textContent = '宝宝，爱你，亲亲，抱抱，摸摸❤️❤️❤️，终极彩蛋来啦'
+                yesBtn.textContent = '终极彩蛋'
+                // 隐藏"再考虑下"按钮
+                noBtn.style.display = 'none';
+            }
             // 创建爆炸的心形效果
             for(let i = 0; i < 50; i++) {
                 const heart = document.createElement('div');
@@ -194,9 +386,169 @@
             `;
             document.head.appendChild(style);
         });
+
+        noBtn.addEventListener('click', function() {
+            if (count == 0) {
+                mm.textContent = '不愿意？你居然不愿意？呜呜'
+                yesBtn.textContent = '我愿意'
+                this.textContent = '再考虑下'
+                count = 1
+            }
+            else if (count == 1) {
+                mm.textContent = '你居然还要再考虑？哭了'
+                yesBtn.textContent = '抱抱'
+                this.textContent = '哭吧'
+                count = 2
+            }
+            else if (count == 2) {
+                mm.textContent = '伤心了'
+                yesBtn.textContent = '抱抱'
+                this.textContent = '伤心吧'
+                count = 3
+            }
+            else if (count == 3) {
+                mm.textContent = '真的真的伤心了，哄不好的那种'
+                yesBtn.textContent = '亲亲'
+                this.textContent = '呃...'
+                count = 4
+            }
+            else if (count == 4) {
+                mm.textContent = '😭😭😭'
+                yesBtn.textContent = '亲亲'
+                this.textContent = '呃...'
+                count = 5
+            }
+            else if (count == 5) {
+                mm.textContent = '😭😭😭😭😭'
+                yesBtn.textContent = '亲亲'
+                this.textContent = '呃...'
+                count = 6
+            }
+            else if (count == 6) {
+                mm.textContent = '还来？😭😭😭😭😭'
+                yesBtn.textContent = '亲亲'
+                this.textContent = '呃...'
+                count = 7
+            }
+            else if (count == 7) {
+                mm.textContent = '我是有底线的啊！😭😭😭😭😭'
+                yesBtn.textContent = '亲亲抱抱'
+                this.textContent = '呃...'
+                count = 8
+            }
+            else if (count == 8) {
+                mm.textContent = '真的要这样么！😭😭😭😭😭'
+                yesBtn.textContent = '亲亲抱抱'
+                this.textContent = '呃...'
+                count = 9
+            }
+            else if (count == 9) {
+                mm.textContent = '好吧，你赢了！😭😭😭😭😭'
+                yesBtn.textContent = '亲亲抱抱举高高'
+                this.textContent = '耶'
+                count = 10
+            }
+            else if (count == 10) {
+                mm.textContent = '太过分，你还兴奋！😭😭😭😭😭'
+                yesBtn.textContent = '亲亲抱抱举高高'
+                this.textContent = '耶'
+                count = 11
+            }
+            else if (count == 11) {
+                mm.textContent = '别点了，告诉你个秘密，这里面有彩蛋！😭😭😭😭😭'
+                yesBtn.textContent = '亲亲抱抱举高高'
+                this.textContent = '耶'
+                count = 12
+            }
+            else if (count == 12) {
+                mm.textContent = '还点？太过分了！那你继续点吧，我走了😭😭😭😭😭'
+                yesBtn.textContent = '亲亲抱抱举高高'
+                this.textContent = '继续点'
+                count = 13
+            } 
+            else if (count == 14) {
+                mm.textContent = '居然是有点，太，太，太伤心了！😭😭😭😭😭'
+                yesBtn.textContent = '亲亲'
+                this.textContent = '呃...'
+                count = 4
+            }
+            else if (count == 15) {
+                mm.textContent = '伤心，太，太，太伤心了！😭😭😭😭😭'
+                yesBtn.textContent = '亲亲'
+                this.textContent = '呃...'
+                count = 4
+            }
+            else if (count == 16) {
+                mm.textContent = '初级彩蛋，才艺有限，给宝宝讲个笑话吧。从前有只小乌龟生病了，然后它叫它好朋友蜗牛帮他买药，过了一小时后，蜗牛还没回来，小乌龟难受的要命就在家嘀咕，"这家伙还不回，我就要病死了"，结果门外传来蜗牛的声音，"你丫的，再说我，我就不去了"'
+                yesBtn.textContent = '好笑(继续)😄'
+                this.textContent = '不好笑'
+                count = 18
+            }
+            else if (count == 17) {
+                mm.textContent = '超级无敌螺旋爆炸爱你，爱你生生世世❤️❤️❤️'
+                yesBtn.textContent = '超爱你❤️❤️❤️'
+                noBtn.textContent = '超爱你❤️❤️❤️'
+                cai++
+                count = cai > 10 ? 20 : 17
+            }
+            else if (count == 18) {
+                mm.textContent = '我费了那么久准备，居然说不好笑，感情淡了，演都不演了，哎😭😭😭😭😭，既然这样，终极彩蛋没必要看了'
+                yesBtn.textContent = '好笑😄'
+                this.textContent = '不好笑'
+                count = 4
+            }
+        });
         
-        // 页面加载后开始创建心形
-        window.addEventListener('load', createHearts);
+        // 音乐播放器控制
+        playBtn.addEventListener('click', function() {
+            if(isPlaying) {
+                bgMusic.pause();
+                this.textContent = '▶️';
+            } else {
+                bgMusic.play();
+                this.textContent = '⏸';
+            }
+            isPlaying = !isPlaying;
+        });
+        
+        prevBtn.addEventListener('click', function() {
+            // 这里可以添加切换到上一首的逻辑
+        });
+        
+        nextBtn.addEventListener('click', function() {
+            // 这里可以添加切换到下一首的逻辑
+        });
+        
+        // 进度条控制
+        progressContainer.addEventListener('click', function(e) {
+            const percent = e.offsetX / this.offsetWidth;
+            bgMusic.currentTime = percent * bgMusic.duration;
+        });
+        
+        // 更新进度条
+        bgMusic.addEventListener('timeupdate', function() {
+            const percent = (bgMusic.currentTime / bgMusic.duration) * 100;
+            progressBar.style.width = `${percent}%`;
+        });
+        
+        // 音乐结束时
+        bgMusic.addEventListener('ended', function() {
+            isPlaying = false;
+            playBtn.textContent = '▶️';
+        });
+        
+        // 窗口大小改变时
+        window.addEventListener('resize', function() {
+
+        });
+        
+        // 页面加载完成后启动
+        window.addEventListener('load', function() {
+            // 页面加载后开始创建心形
+            createHearts
+            // 自动播放音乐 (注意: 很多浏览器会阻止自动播放)
+            // bgMusic.play().catch(e => console.log('自动播放被阻止:', e));
+        });
     </script>
 </body>
 </html>
